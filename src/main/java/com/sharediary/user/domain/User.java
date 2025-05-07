@@ -1,30 +1,26 @@
 package com.sharediary.user.domain;
 
-import com.fasterxml.jackson.annotation.JsonGetter;
-import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.stereotype.Service;
 
-@Entity
-@Table(name="users")
+@Document(collection = "users")
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Setter
+@NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
 
-    @Column(nullable = false, unique = true)
-    private  String email;
-
-    @Column(nullable = false)
-    private  String password;
-
-    @Column(nullable = false)
+    @Indexed(unique = true)
+    private String userId;
+    private String password;
     private String nickname;
-
+    private String email;
     private String profileImageUrl;
+    private String bio;
 }

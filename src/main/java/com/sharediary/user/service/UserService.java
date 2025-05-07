@@ -1,40 +1,43 @@
 package com.sharediary.user.service;
 
-
 import com.sharediary.user.domain.User;
 import com.sharediary.user.dto.UserRequestDto;
 import com.sharediary.user.dto.UserResponseDto;
 import com.sharediary.user.repository.UserRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class UserService {
-
     private final UserRepository userRepository;
 
-    public UserResponseDto createUser(UserRequestDto requestDto){
+    public UserResponseDto register(UserRequestDto dto){
+        if(userRepository.existsByUserId(dto.getUserId())){
+            throw new IllegalArgumentException("이미 사용중인 ID입니다.");
+        }
+
         User user=User.builder()
-                .email(requestDto.getEmail())
-                .password(requestDto.getPassword())
-                .nickname(requestDto.getNickname())
+                .userId(dto.getUserId())
+                .nickname(dto.getNickname())
+                .email(dto.getEmail())
                 .build();
 
-        User savedUser=userRepository.save(user);
-        return new UserResponseDto(
-                savedUser.getId(),
-                savedUser.getEmail(),
-                savedUser.getNickname(),
-                savedUser.getProfileImageUrl()
-        );
+        User saved=userRepository.save(user);
+        return new UserResponseDto(saved.getId(), saved.getUserId(), saved.getNickname(), saved.getEmail(), saved.getProfileImageUrl());
+
     }
 
-    public UserResponseDto getUser(Long userId){
-        User user=userRepository.findById(userId)
-                .orElseThrow(()->new IllegalArgumentException("사용자를 찾을 수 없습니다."));
-        return new UserResponseDto(user.getId(), user.getEmail(), user.getNickname(), user.getProfileImageUrl()s);
+    public UserResponseDto getProfile(String id){
+        User user=userRepository.findById(id)
+                .orElseThrow(()->new RuntimeException("사용자를 찾을 수 없습니다."));
+        return new UserResponseDto(user.getId(), user.getUserId(), user.getNickname(), user.getEmail(), user.getProfileImageUrl());
+
     }
+
+    public boolean isDuplicate(String userId) {
+        return userRepository.existsByUserId(userId);
+    }
+
+
 }

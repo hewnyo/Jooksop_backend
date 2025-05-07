@@ -1,19 +1,13 @@
 package com.sharediary.user.dto;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+@Setter
 public class UserRequestDto {
-
-    @Email
-    @NotBlank
-    private String eamil;
-
-    @NotBlank
+    private String userId;
     private String password;
-
-    @NotBlank
     private String nickname;
+    private String email;
 }

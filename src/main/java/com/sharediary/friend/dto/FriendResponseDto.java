@@ -1,4 +1,4 @@
-package com.sharediary.user.dto;
+package com.sharediary.friend.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -7,11 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class UserResponseDto {
-    private String id;
+public class FriendResponseDto {
     private String userId;
     private String nickname;
-    private String email;
-    private String profileImageUrl;
 }
-

@@ -3,8 +3,8 @@ package com.sharediary.user.controller;
 import com.sharediary.user.dto.UserRequestDto;
 import com.sharediary.user.dto.UserResponseDto;
 import com.sharediary.user.service.UserService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -13,13 +13,19 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
     private final UserService userService;
 
-    @PostMapping
-    public UserResponseDto createUser(@RequestBody @Valid UserRequestDto requestDto){
-        return userService.createUser(requestDto);
+    @PostMapping("/register")
+    public ResponseEntity<UserResponseDto> register(@RequestBody UserRequestDto dto){
+        return ResponseEntity.ok(userService.register(dto));
     }
 
-    @GetMapping("/{userId}")
-    public UserResponseDto getUser(@PathVariable Long userId){
-        return userService.getUser(userId);
+    @GetMapping("/{id}/profile")
+    public ResponseEntity<UserResponseDto> getProfile(@PathVariable String id){
+        return ResponseEntity.ok(userService.getProfile(id));
     }
+
+    @GetMapping("/check-id")
+    public ResponseEntity<Boolean> checkDuplicate(@RequestParam String userId){
+        return ResponseEntity.ok(userService.isDuplicate(userId));
+    }
+
 }
