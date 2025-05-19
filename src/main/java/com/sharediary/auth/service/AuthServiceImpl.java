@@ -3,6 +3,8 @@ package com.sharediary.auth.service;
 import com.sharediary.auth.dto.AuthResponseDto;
 import com.sharediary.auth.dto.LoginRequestDto;
 import com.sharediary.auth.dto.SignupRequestDto;
+import com.sharediary.auth.jwt.JwtProvider;
+import com.sharediary.auth.repository.EmailVerificationRepository;
 import com.sharediary.user.repository.UserRepository;
 
 public class AuthServiceImpl {
