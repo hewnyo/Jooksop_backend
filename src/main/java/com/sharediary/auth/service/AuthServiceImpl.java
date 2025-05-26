@@ -4,9 +4,12 @@ import com.sharediary.auth.dto.AuthResponseDto;
 import com.sharediary.auth.dto.LoginRequestDto;
 import com.sharediary.auth.dto.ResetPasswordRequestDto;
 import com.sharediary.auth.dto.SignupRequestDto;
+import com.sharediary.auth.jwt.JwtProvider;
 import com.sharediary.user.domain.User;
 import com.sharediary.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -14,6 +17,8 @@ import org.springframework.stereotype.Service;
 public class AuthServiceImpl implements AuthService{
 
     private final UserRepository userRepository;
+    private final JwtProvider jwtProvider;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public AuthResponseDto signup(SignupRequestDto dto) {
@@ -27,7 +32,7 @@ public class AuthServiceImpl implements AuthService{
 
         User user = User.builder()
                 .userId(dto.getUserId())
-                .password(dto.getPassword()) // 평문 저장
+                .password(passwordEncoder.encode(dto.getPassword()))
                 .nickname(dto.getNickname())
                 .email(dto.getEmail())
                 .build();
@@ -39,8 +44,11 @@ public class AuthServiceImpl implements AuthService{
     @Override
     public AuthResponseDto login(LoginRequestDto dto) {
         return userRepository.findByUserId(dto.getUserId())
-                .filter(user -> dto.getPassword().equals(user.getPassword())) // 평문 비교
-                .map(user -> new AuthResponseDto(true, "로그인 성공", null))
+                .filter(user -> passwordEncoder.matches(dto.getPassword(), user.getPassword()))
+                .map(user -> {
+                    String token = jwtProvider.createToken(user.getUserId(), user.getNickname());
+                    return new AuthResponseDto(true, "로그인 성공", token);
+                })
                 .orElseGet(() -> new AuthResponseDto(false, "ID 또는 비밀번호가 일치하지 않습니다.", null));
     }
 
@@ -56,7 +64,7 @@ public class AuthServiceImpl implements AuthService{
         return userRepository.findByUserId(dto.getUserId())
                 .filter(user -> user.getEmail().equals(dto.getEmail()))
                 .map(user -> {
-                    user.setPassword(dto.getNewPassword()); // 평문 저장
+                    user.setPassword(passwordEncoder.encode(dto.getNewPassword()));
                     userRepository.save(user);
                     return new AuthResponseDto(true, "비밀번호 재설정 완료", null);
                 })

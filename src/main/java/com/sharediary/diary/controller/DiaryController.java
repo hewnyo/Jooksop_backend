@@ -17,7 +17,7 @@ public class DiaryController {
     private final DiaryService diaryService;
 
     @PostMapping("/{userId}")
-    public ResponseEntity<DiaryResponseDto> write(@RequestBody String userId, DiaryRequestDto dto){
+    public ResponseEntity<DiaryResponseDto> write(@PathVariable String userId, @RequestBody DiaryRequestDto dto) {
         return ResponseEntity.ok(diaryService.createDiary(userId, dto));
     }
 

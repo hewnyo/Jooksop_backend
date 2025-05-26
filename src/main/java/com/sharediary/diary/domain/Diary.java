@@ -6,6 +6,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Document(collection = "diaries")
@@ -25,4 +26,6 @@ public class Diary {
 
     @Field("taggedUserIds")
     private List<String> taggedUserIds;
+
+    private LocalDateTime updatedAt;
 }
