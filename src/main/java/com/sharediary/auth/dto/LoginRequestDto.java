@@ -1,6 +1,13 @@
 package com.sharediary.auth.dto;
 
-public class LoginRequestDto {
+import lombok.*;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class LoginRequestDto{
     private String userId;
     private String password;
 }

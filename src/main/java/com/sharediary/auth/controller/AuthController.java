@@ -1,35 +1,52 @@
 package com.sharediary.auth.controller;
 
-import com.sharediary.auth.dto.AuthResponseDto;
-import com.sharediary.auth.dto.LoginRequestDto;
-import com.sharediary.auth.dto.SignupRequestDto;
+
+import com.sharediary.auth.dto.*;
 import com.sharediary.auth.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationServiceException;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
-
 public class AuthController {
 
     private final AuthService authService;
 
+    /**
+     * 회원가입
+     */
     @PostMapping("/signup")
-    public ResponseEntity<AuthResponseDto> signup(@RequestBody SignupRequestDto dto){
+    public ResponseEntity<AuthResponseDto> signup(@RequestBody SignupRequestDto dto) {
         return ResponseEntity.ok(authService.signup(dto));
     }
 
+    /**
+     * 로그인
+     */
     @PostMapping("/login")
-    public ResponseEntity<AuthResponseDto> login(@RequestBody LoginRequestDto dto){
+    public ResponseEntity<AuthResponseDto> login(@RequestBody LoginRequestDto dto) {
         return ResponseEntity.ok(authService.login(dto));
     }
 
-    @PostMapping("/verify-email")
-    public ResponseEntity<Boolean> verifyEmail(@RequestParam String email, @RequestParam String code){
-        return ResponseEntity.ok(authService.verifyEmail(email, code));
+    /**
+     * 아이디 찾기
+     */
+    @PostMapping("/find-id")
+    public ResponseEntity<AuthResponseDto> findId(@RequestBody FindIdRequestDto dto) {
+        return ResponseEntity.ok(authService.findId(dto.getEmail()));
+    }
+
+    /**
+     * 비밀번호 재설정
+     */
+    @PostMapping("/reset-password")
+    public ResponseEntity<AuthResponseDto> resetPassword(@RequestBody ResetPasswordRequestDto dto) {
+        return ResponseEntity.ok(authService.resetPassword(dto));
     }
 
 }
