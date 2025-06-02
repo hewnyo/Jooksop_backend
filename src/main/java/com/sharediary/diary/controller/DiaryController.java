@@ -23,7 +23,7 @@ public class DiaryController {
     }
 
     @GetMapping("/{userId}")
-    public ResponseEntity<List<DiaryResponseDto>> getByDate(@PathVariable String userId, @RequestParam String date){
-        return ResponseEntity.ok(diaryService.getDiariesByDate(userId, LocalDate.parse(date)));
+    public ResponseEntity<List<DiaryResponseDto>> getByDate(@PathVariable String userId, @RequestParam String date) {
+        return ResponseEntity.ok(diaryService.getDiariesByDate(userId, date));
     }
 }
