@@ -7,6 +7,6 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface DiaryRepository extends MongoRepository<Diary, String> {
-    List<Diary> findByUserIdAndDate(String userId, LocalDate date);
+    List<Diary> findByUserIdAndDate(String userId, String date);
     List<Diary> findByTaggedUserIdsContaining(String userId);
 }

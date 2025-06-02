@@ -15,6 +15,6 @@ public class DiaryResponseDto {
     private String id;
     private String userId;
     private String content;
-    private LocalDate date;
+    private String date;
     private List<String> taggedUserIds;
 }

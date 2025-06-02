@@ -22,7 +22,7 @@ public class Diary {
     private String userId;
     private String content;
 
-    private LocalDate date;
+    private String date;
 
     @Field("taggedUserIds")
     private List<String> taggedUserIds;

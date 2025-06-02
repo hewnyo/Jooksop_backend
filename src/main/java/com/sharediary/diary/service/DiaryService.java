@@ -40,7 +40,7 @@ public class DiaryService implements DiaryEditDelegate {
     }
 
     //날짜 기반 검색
-    public List<DiaryResponseDto> getDiariesByDate(String userId, LocalDate date) {
+    public List<DiaryResponseDto> getDiariesByDate(String userId, String date) {
         return diaryRepository.findByUserIdAndDate(userId, date).stream()
                 .map(d -> new DiaryResponseDto(d.getId(), d.getUserId(), d.getContent(), d.getDate(), d.getTaggedUserIds()))
                 .collect(Collectors.toList());
