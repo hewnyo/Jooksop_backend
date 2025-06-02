@@ -1,6 +1,7 @@
 package com.sharediary.socket.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sharediary.auth.jwt.JwtProvider;
 import com.sharediary.diary.service.DiaryService;
 import com.sharediary.socket.delegate.DiaryEditDelegate;
 import com.sharediary.socket.dto.DiaryEditMessageDto;
@@ -25,6 +26,7 @@ public class DiaryWebSocketHandler extends TextWebSocketHandler {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final Map<String, List<WebSocketSession>> sessionMap = new ConcurrentHashMap<>();
+    private final JwtProvider jwtProvider;
     private DiaryEditDelegate delegate;
 
 
@@ -32,13 +34,28 @@ public class DiaryWebSocketHandler extends TextWebSocketHandler {
         this.delegate = delegate;
     }
 
+
+
     @Override
     public void afterConnectionEstablished(WebSocketSession session) {
         String diaryId = getQueryParam(session, "diaryId");
-        String userId = (String) session.getAttributes().get("userId");
+        String token = getQueryParam(session, "token");
 
-        // ✅ 로그 추가
-        System.out.println("🧩 WebSocket 연결 요청 - userId: " + userId + ", diaryId: " + diaryId);
+        if (token == null || !jwtProvider.validateToken(token)) {
+            try {
+                session.sendMessage(new TextMessage("{\"error\":\"인증 실패: 유효하지 않은 토큰입니다.\"}"));
+                session.close(CloseStatus.NOT_ACCEPTABLE);
+                return;
+            } catch (Exception e) {
+                log.warn("WebSocket 강제 종료 실패: {}", e.getMessage());
+                return;
+            }
+        }
+
+        String userId = jwtProvider.getUserId(token);
+        session.getAttributes().put("userId", userId);
+
+        log.info("🧩 WebSocket 연결 요청 - userId: {}, diaryId: {}", userId, diaryId);
 
         if (!delegate.hasEditPermission(diaryId, userId)) {
             try {

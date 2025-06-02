@@ -1,5 +1,6 @@
 package com.sharediary.diary.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,6 +11,6 @@ import java.util.List;
 @Setter
 public class DiaryRequestDto {
     private String content;
-    private LocalDate date;
+    private String date;
     private List<String> taggedUserIds;
 }
