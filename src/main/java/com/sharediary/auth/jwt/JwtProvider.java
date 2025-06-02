@@ -5,18 +5,26 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.util.Base64;
+import java.util.Collections;
 import java.util.Date;
 
+@RequiredArgsConstructor
 @Component
 public class JwtProvider {
     private String secret = "JooksopSuperSecretKeyForJWTGeneration!!"; // 32자 이상
     private SecretKey secretKey;
 
     private final long validityInMilliseconds = 3600000; // 1시간
+
+    private final com.sharediary.user.repository.UserRepository userRepository;
 
     @PostConstruct
     protected void init() {
@@ -61,6 +69,17 @@ public class JwtProvider {
                 .parseClaimsJws(token)
                 .getBody()
                 .get("nickname");
+    }
+
+    public UserDetails getUserDetails(String userId){
+        com.sharediary.user.domain.User user=userRepository.findByUserId(userId)
+                .orElseThrow(()-> new RuntimeException("사용자를 찾을 수 없습니다. "+userId));
+
+        return User.builder()
+                .username(user.getUserId())
+                .password(user.getPassword())
+                .authorities(Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")))
+                .build();
     }
 
 }

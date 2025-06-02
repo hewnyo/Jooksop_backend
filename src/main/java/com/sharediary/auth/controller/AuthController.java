@@ -4,6 +4,7 @@ package com.sharediary.auth.controller;
 import com.sharediary.auth.dto.*;
 import com.sharediary.auth.service.AuthService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -30,7 +31,11 @@ public class AuthController {
      */
     @PostMapping("/login")
     public ResponseEntity<AuthResponseDto> login(@RequestBody LoginRequestDto dto) {
-        return ResponseEntity.ok(authService.login(dto));
+        AuthResponseDto res=authService.login(dto);
+        if(!res.isSuccess()){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(res);
+        }
+        return ResponseEntity.ok(res);
     }
 
     /**

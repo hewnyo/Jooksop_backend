@@ -3,6 +3,7 @@ package com.sharediary.diary.controller;
 import com.sharediary.diary.dto.DiaryRequestDto;
 import com.sharediary.diary.dto.DiaryResponseDto;
 import com.sharediary.diary.service.DiaryService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +23,9 @@ public class DiaryController {
     }
 
     @GetMapping("/{userId}")
-    public ResponseEntity<List<DiaryResponseDto>> getByDate(@PathVariable String userId, @RequestParam String date){
-        return ResponseEntity.ok(diaryService.getDiariesByDate(userId, LocalDate.parse(date)));
+    public ResponseEntity<?> getByDate(@PathVariable String userId, @RequestParam String date, HttpServletRequest request){
+        System.out.println("🔍 Authorization: " + request.getHeader("Authorization"));
+        return ResponseEntity.ok("테스트 성공");
+
     }
 }
