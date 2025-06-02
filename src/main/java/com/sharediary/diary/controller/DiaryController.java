@@ -18,6 +18,7 @@ public class DiaryController {
 
     @PostMapping("/{userId}")
     public ResponseEntity<DiaryResponseDto> write(@PathVariable String userId, @RequestBody DiaryRequestDto dto) {
+        System.out.println("📩 받은 날짜: " + dto.getDate());
         return ResponseEntity.ok(diaryService.createDiary(userId, dto));
     }
 
