@@ -3,12 +3,11 @@ package com.sharediary.auth.controller;
 
 import com.sharediary.auth.dto.*;
 import com.sharediary.auth.service.AuthService;
+import com.sharediary.user.repository.UserRepository;
+import com.sharediary.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -16,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final AuthService authService;
+    private final UserService userService;
 
     /**
      * 회원가입
@@ -23,6 +23,12 @@ public class AuthController {
     @PostMapping("/signup")
     public ResponseEntity<AuthResponseDto> signup(@RequestBody SignupRequestDto dto) {
         return ResponseEntity.ok(authService.signup(dto));
+    }
+
+    @GetMapping("/check-id")
+    public ResponseEntity<Boolean> checkDuplicateId(@RequestParam String userId) {
+        boolean isDuplicate = userService.isDuplicate(userId);
+        return ResponseEntity.ok(isDuplicate);
     }
 
     /**
