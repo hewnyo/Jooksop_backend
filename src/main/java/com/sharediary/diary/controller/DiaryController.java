@@ -5,6 +5,7 @@ import com.sharediary.diary.dto.DiaryResponseDto;
 import com.sharediary.diary.service.DiaryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -16,14 +17,15 @@ import java.util.List;
 public class DiaryController {
     private final DiaryService diaryService;
 
-    @PostMapping("/{userId}")
-    public ResponseEntity<DiaryResponseDto> write(@PathVariable String userId, @RequestBody DiaryRequestDto dto) {
-        System.out.println("📩 받은 날짜: " + dto.getDate());
+    @PostMapping
+    public ResponseEntity<DiaryResponseDto> write(@RequestBody DiaryRequestDto dto) {
+        String userId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return ResponseEntity.ok(diaryService.createDiary(userId, dto));
     }
 
-    @GetMapping("/{userId}")
-    public ResponseEntity<List<DiaryResponseDto>> getByDate(@PathVariable String userId, @RequestParam String date) {
+    @GetMapping
+    public ResponseEntity<List<DiaryResponseDto>> getByDate(@RequestParam String date) {
+        String userId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return ResponseEntity.ok(diaryService.getDiariesByDate(userId, date));
     }
 }
