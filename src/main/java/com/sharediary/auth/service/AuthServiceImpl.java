@@ -39,6 +39,7 @@ public class AuthServiceImpl implements AuthService{
 
         userRepository.save(user);
         return new AuthResponseDto(true, "회원가입 성공", null);
+
     }
 
     @Override
@@ -50,6 +51,7 @@ public class AuthServiceImpl implements AuthService{
                     return new AuthResponseDto(true, "로그인 성공", token);
                 })
                 .orElseGet(() -> new AuthResponseDto(false, "ID 또는 비밀번호가 일치하지 않습니다.", null));
+
     }
 
     @Override

@@ -5,21 +5,26 @@ import com.sharediary.user.dto.UserRequestDto;
 import com.sharediary.user.dto.UserResponseDto;
 import com.sharediary.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public UserResponseDto register(UserRequestDto dto){
         if(userRepository.existsByUserId(dto.getUserId())){
             throw new IllegalArgumentException("이미 사용중인 ID입니다.");
         }
 
+        String encryptedPassword=passwordEncoder.encode(dto.getPassword());
+
         User user=User.builder()
                 .userId(dto.getUserId())
                 .nickname(dto.getNickname())
+                .password(encryptedPassword)
                 .email(dto.getEmail())
                 .build();
 
