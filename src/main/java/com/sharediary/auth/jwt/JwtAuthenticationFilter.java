@@ -2,15 +2,18 @@ package com.sharediary.auth.jwt;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Collections;
 
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
@@ -24,22 +27,44 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-        String token = resolveToken(request);
-        if (token != null && jwtProvider.validateToken(token)) {
-            String userId = jwtProvider.getUserId(token);
-            UsernamePasswordAuthenticationToken authentication =
-                    new UsernamePasswordAuthenticationToken(userId, null, null); // 권한은 DB에서 별도 관리
-            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+        String bearer=request.getHeader("Authorization");
+        if(bearer==null){
+            bearer=request.getHeader("authorization");
         }
 
+        System.out.println(">> Authorization header: " + bearer);
+        System.out.println("✅ 필터 실행됨");
+
+        if(bearer!=null&&bearer.startsWith("Bearer ")){
+            String token=bearer.substring(7);
+            System.out.println("✅ 추출된 토큰: " + token);
+
+            if (jwtProvider.validateToken(token)){
+                String userId=jwtProvider.getUserId(token);
+                System.out.println("✅ 토큰 유효함, userId = " + userId);
+
+                UsernamePasswordAuthenticationToken authentication=
+                        new UsernamePasswordAuthenticationToken(userId, null, Collections.emptyList());
+                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            } else {
+                System.out.println("❌ 토큰 유효성 검사 실패");
+            }
+        }
         filterChain.doFilter(request, response);
     }
 
     private String resolveToken(HttpServletRequest request) {
-        String bearer = request.getHeader("Authorization");
-        if (StringUtils.hasText(bearer) && bearer.startsWith("Bearer ")) {
-            return bearer.substring(7);
+        System.out.println(">>>> HEADERS: ");
+        request.getHeaderNames().asIterator().forEachRemaining(
+                name-> System.out.println(name+": "+request.getHeader(name))
+        );
+        String bearer = request.getHeader("authorization");
+        System.out.println(">> Authorization header: " + bearer);
+        if (bearer != null && bearer.startsWith("Bearer ")) {
+            String token = bearer.substring(7);
+            System.out.println("✅ 추출된 토큰: " + token);
+
         }
         return null;
     }
