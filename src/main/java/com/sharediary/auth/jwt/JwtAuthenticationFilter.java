@@ -32,16 +32,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             bearer=request.getHeader("authorization");
         }
 
-        System.out.println(">> Authorization header: " + bearer);
-        System.out.println("✅ 필터 실행됨");
 
         if(bearer!=null&&bearer.startsWith("Bearer ")){
             String token=bearer.substring(7);
-            System.out.println("✅ 추출된 토큰: " + token);
 
             if (jwtProvider.validateToken(token)){
                 String userId=jwtProvider.getUserId(token);
-                System.out.println("✅ 토큰 유효함, userId = " + userId);
 
                 UsernamePasswordAuthenticationToken authentication=
                         new UsernamePasswordAuthenticationToken(userId, null, Collections.emptyList());
@@ -55,7 +51,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private String resolveToken(HttpServletRequest request) {
-        System.out.println(">>>> HEADERS: ");
         request.getHeaderNames().asIterator().forEachRemaining(
                 name-> System.out.println(name+": "+request.getHeader(name))
         );
@@ -63,8 +58,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         System.out.println(">> Authorization header: " + bearer);
         if (bearer != null && bearer.startsWith("Bearer ")) {
             String token = bearer.substring(7);
-            System.out.println("✅ 추출된 토큰: " + token);
-
         }
         return null;
     }

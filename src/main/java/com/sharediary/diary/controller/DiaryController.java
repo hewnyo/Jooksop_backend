@@ -3,6 +3,7 @@ package com.sharediary.diary.controller;
 import com.sharediary.diary.dto.DiaryRequestDto;
 import com.sharediary.diary.dto.DiaryResponseDto;
 import com.sharediary.diary.service.DiaryService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -28,4 +29,5 @@ public class DiaryController {
         String userId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return ResponseEntity.ok(diaryService.getDiariesByDate(userId, date));
     }
+
 }

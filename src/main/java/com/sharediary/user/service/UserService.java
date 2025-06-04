@@ -1,5 +1,6 @@
 package com.sharediary.user.service;
 
+import com.sharediary.friend.dto.FriendResponseDto;
 import com.sharediary.user.domain.User;
 import com.sharediary.user.dto.UserRequestDto;
 import com.sharediary.user.dto.UserResponseDto;
@@ -7,6 +8,9 @@ import com.sharediary.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Collections;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor

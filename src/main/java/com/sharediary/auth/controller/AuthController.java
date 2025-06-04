@@ -2,9 +2,11 @@ package com.sharediary.auth.controller;
 
 
 import com.sharediary.auth.dto.*;
+import com.sharediary.auth.jwt.JwtProvider;
 import com.sharediary.auth.service.AuthService;
 import com.sharediary.user.repository.UserRepository;
 import com.sharediary.user.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +19,7 @@ public class AuthController {
 
     private final AuthService authService;
     private final UserService userService;
+    private final JwtProvider jwtProvider;
 
     /**
      * 회원가입
@@ -58,6 +61,19 @@ public class AuthController {
     @PostMapping("/reset-password")
     public ResponseEntity<AuthResponseDto> resetPassword(@RequestBody ResetPasswordRequestDto dto) {
         return ResponseEntity.ok(authService.resetPassword(dto));
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletRequest request) {
+        String token = jwtProvider.resolveToken(request);
+
+        if (token==null||token.isEmpty()){
+            return ResponseEntity.badRequest().body("Token is missing or invalid");
+        }
+
+        jwtProvider.invalidateToken(token);
+        return ResponseEntity.ok().build();
+
     }
 
 }

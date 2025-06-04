@@ -39,6 +39,7 @@ public class SecurityConfig {
                         .requestMatchers(new AntPathRequestMatcher("/api/users/**")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/ws/**")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/api/diaries/**")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/api/friends/**")).permitAll()
                         .anyRequest().authenticated()
 
                 )

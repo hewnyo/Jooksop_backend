@@ -3,6 +3,7 @@ package com.sharediary.friend.controller;
 import com.sharediary.friend.dto.FriendRequestDto;
 import com.sharediary.friend.dto.FriendResponseDto;
 import com.sharediary.friend.service.FriendService;
+import com.sharediary.user.dto.UserResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,6 +31,11 @@ public class FriendController {
     public ResponseEntity<Void> removeFriend(@PathVariable String requesterUserId, @RequestBody FriendRequestDto dto){
         friendService.removeFriend(requesterUserId, dto.getTargetUserId());
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<UserResponseDto>>searchById(@RequestParam String userId){
+        return ResponseEntity.ok(friendService.searchUsersByExactId(userId));
     }
 
 }
