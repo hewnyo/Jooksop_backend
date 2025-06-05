@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -37,12 +38,28 @@ public class UserService {
 
     }
 
-    public UserResponseDto getProfile(String id){
-        User user=userRepository.findById(id)
-                .orElseThrow(()->new RuntimeException("사용자를 찾을 수 없습니다."));
-        return new UserResponseDto(user.getId(), user.getUserId(), user.getNickname(), user.getEmail(), user.getProfileImageUrl());
+    public UserResponseDto getMyProfile(String userId) {
+        System.out.println("받은 userId: " + userId);
 
+        Optional<User> optionalUser = userRepository.findByUserId(userId);
+        if (optionalUser.isEmpty()) {
+            System.out.println("❌ DB에서 해당 유저를 찾지 못함");
+            throw new RuntimeException("사용자를 찾을 수 없습니다. userId=" + userId);
+        }
+
+        User user = optionalUser.get();
+        System.out.println("✅ 유저 찾음: " + user.getNickname());
+
+        return new UserResponseDto(
+                user.getId(),
+                user.getUserId(),
+                user.getNickname(),
+                user.getEmail(),
+                user.getProfileImageUrl()
+        );
     }
+
+
 
     public boolean isDuplicate(String userId) {
         return userRepository.existsByUserId(userId);

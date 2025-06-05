@@ -1,5 +1,6 @@
 package com.sharediary.user.dto;
 
+import com.sharediary.user.domain.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,5 +16,6 @@ public class UserResponseDto {
     private String nickname;
     private String email;
     private String profileImageUrl;
+
 }
 

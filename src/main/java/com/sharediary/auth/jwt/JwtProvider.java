@@ -79,6 +79,8 @@ public class JwtProvider {
         com.sharediary.user.domain.User user=userRepository.findByUserId(userId)
                 .orElseThrow(()-> new RuntimeException("사용자를 찾을 수 없습니다. "+userId));
 
+        System.out.println("🔎 userId로 유저 조회 시도: " + userId);
+
         return User.builder()
                 .username(user.getUserId())
                 .password(user.getPassword())
