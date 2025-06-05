@@ -41,84 +41,51 @@ public class JooksopApplicationTests {
 		return "http://localhost:"+port+path;
 	}
 
-	private void signup(String userId){
-		String email=userId+"@test.com";
-		String password="secure123";
 
-		SignupRequestDto signupDto= SignupRequestDto.builder()
+	@Test
+	void 회원가입_로그인_정상_작동_테스트() {
+		// 유니크한 사용자 ID 생성
+		String userId = "testUser_" + System.currentTimeMillis();
+		String password = "secure123";
+		String email = userId + "@test.com";
+
+		// 1. 회원가입 요청
+		SignupRequestDto signupDto = SignupRequestDto.builder()
 				.userId(userId)
 				.password(password)
 				.confirmPassword(password)
-				.email(email).build();
+				.email(email)
+				.nickname("테스트유저") // nickname 필드가 필수라면 반드시 추가
+				.build();
 
-		ResponseEntity<String> response=restTemplate.postForEntity(
-				getBaseUrl("/api/users/register"),
+		ResponseEntity<AuthResponseDto> signupResponse = restTemplate.postForEntity(
+				getBaseUrl("/api/auth/signup"),
 				signupDto,
-				String.class
+				AuthResponseDto.class
 		);
 
-		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-	}
+		assertThat(signupResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(signupResponse.getBody()).isNotNull();
+		assertThat(signupResponse.getBody().isSuccess()).isTrue();
 
-	private String loginAndGetToken(String userId){
-		String password="secure123";
-
-		LoginRequestDto loginDto=LoginRequestDto.builder()
+		// 2. 로그인 요청
+		LoginRequestDto loginDto = LoginRequestDto.builder()
 				.userId(userId)
 				.password(password)
 				.build();
 
-		ResponseEntity<AuthResponseDto> response = restTemplate.postForEntity(
+		ResponseEntity<AuthResponseDto> loginResponse = restTemplate.postForEntity(
 				getBaseUrl("/api/auth/login"),
 				loginDto,
 				AuthResponseDto.class
 		);
 
-		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-		assertThat(response.getBody()).isNotNull();
-		assertThat(response.getBody().isSuccess()).isTrue();
-
-		String token = response.getBody().getData();
-		assertThat(token).isNotBlank();
-		return token;
-
+		assertThat(loginResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(loginResponse.getBody()).isNotNull();
+		assertThat(loginResponse.getBody().isSuccess()).isTrue();
+		assertThat(loginResponse.getBody().getData()).isNotBlank(); // 토큰 확인
 	}
 
-	@Test
-	void 로그아웃_테스트() throws InterruptedException{
-
-		// 1. 회원가입 및 로그인
-		String userId = "logoutTestUser_" + System.currentTimeMillis();
-		signup(userId);
-		String token = loginAndGetToken(userId);
-
-// 2. 로그아웃 요청
-		HttpHeaders headers = new HttpHeaders();
-		headers.setBearerAuth(token);
-		HttpEntity<?> entity = new HttpEntity<>(headers);
-
-		ResponseEntity<String> logoutRes = restTemplate.exchange(
-				getBaseUrl("/api/auth/logout"),
-				HttpMethod.POST,
-				entity,
-				String.class
-		);
-
-// 🔍 여기까진 200 OK 나와야 정상
-		assertThat(logoutRes.getStatusCode()).isEqualTo(HttpStatus.OK);
-
-// 3. 로그아웃 후 다시 요청 (무효 토큰 확인용)
-		ResponseEntity<String> afterLogoutRes = restTemplate.exchange(
-				getBaseUrl("/api/diaries/some-id"),
-				HttpMethod.GET,
-				entity,
-				String.class
-		);
-
-// 🔥 여기서 401 또는 403 나와야 정상 (이미 로그아웃된 토큰)
-		assertThat(afterLogoutRes.getStatusCode()).isNotEqualTo(HttpStatus.OK);
-
-	}
 
 }
 

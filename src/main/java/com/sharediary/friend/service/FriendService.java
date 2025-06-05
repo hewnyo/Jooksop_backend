@@ -8,6 +8,7 @@ import com.sharediary.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -55,6 +56,6 @@ public class FriendService {
                         user.getNickname(),
                         user.getEmail(),
                         user.getProfileImageUrl())))
-                .orElse(List.of());
+                .orElse(Collections.emptyList());
     }
 }
