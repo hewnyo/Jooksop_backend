@@ -4,6 +4,7 @@ import com.sharediary.friend.dto.FriendRequestDto;
 import com.sharediary.friend.dto.FriendResponseDto;
 import com.sharediary.friend.service.FriendService;
 import com.sharediary.user.dto.UserResponseDto;
+import com.sharediary.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +16,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FriendController {
     private final FriendService friendService;
+    private final UserService userService;
 
     @PostMapping("/{requesterUserId}")
     public ResponseEntity<Void> addFriend(@PathVariable String requesterUserId, @RequestBody FriendRequestDto dto){
@@ -34,8 +36,10 @@ public class FriendController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<UserResponseDto>>searchById(@RequestParam String userId){
-        return ResponseEntity.ok(friendService.searchUsersByExactId(userId));
+    public ResponseEntity<List<UserResponseDto>> searchById(@RequestParam String userId){
+        List<UserResponseDto> result = friendService.searchUsersByExactId(userId);
+        System.out.println("🔁 응답 데이터: " + result);
+        return ResponseEntity.ok(result);
     }
 
 }

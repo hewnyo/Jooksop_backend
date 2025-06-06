@@ -3,6 +3,7 @@ package com.sharediary.friend.service;
 import com.sharediary.friend.domain.Friend;
 import com.sharediary.friend.dto.FriendResponseDto;
 import com.sharediary.friend.repository.FriendRepository;
+import com.sharediary.user.domain.User;
 import com.sharediary.user.dto.UserResponseDto;
 import com.sharediary.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -49,13 +51,19 @@ public class FriendService {
         friendRepository.deleteByRequesterUserIdAndTargetUserId(requesterUserId, targetUserId);
     }
 
-    public List<UserResponseDto> searchUsersByExactId(String userId){
-        return userRepository.findByUserId(userId)
-                .map(user->List.of(new UserResponseDto(user.getId(),
-                        user.getUserId(),
-                        user.getNickname(),
-                        user.getEmail(),
-                        user.getProfileImageUrl())))
-                .orElse(Collections.emptyList());
+    public List<UserResponseDto> searchUsersByExactId(String userId) {
+        Optional<User> userOpt = userRepository.findByUserId(userId);
+        if (userOpt.isEmpty()) {
+            return List.of();  // 빈 리스트 반환
+        }
+        User user = userOpt.get();
+        return List.of(new UserResponseDto(
+                user.getId(),
+                user.getUserId(),
+                user.getNickname(),
+                user.getEmail(),
+                user.getProfileImageUrl()
+        ));
     }
+
 }
