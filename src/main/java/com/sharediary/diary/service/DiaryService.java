@@ -59,7 +59,7 @@ public class DiaryService implements DiaryEditDelegate {
      * 날짜 기반 다이어리 조회
      */
     public List<DiaryResponseDto> getDiariesByDate(String userId, String date) {
-        return diaryRepository.findByUserIdAndDate(userId, date).stream()
+        return diaryRepository.findVisibleDiariesByUserAndDate(userId, date).stream()
                 .map(d -> new DiaryResponseDto(
                         d.getId(),
                         d.getUserId(),
