@@ -141,4 +141,9 @@ public class DiaryService implements DiaryEditDelegate {
             diaryWebSocketHandler.disconnectUserFromDiary(diaryId, targetUserId);
         }
     }
+
+    public Diary getDiaryById(String diaryId) {
+        return diaryRepository.findById(diaryId)
+                .orElseThrow(() -> new RuntimeException("해당 일기를 찾을 수 없습니다."));
+    }
 }

@@ -1,5 +1,6 @@
 package com.sharediary.diary.controller;
 
+import com.sharediary.diary.domain.Diary;
 import com.sharediary.diary.dto.DiaryRequestDto;
 import com.sharediary.diary.dto.DiaryResponseDto;
 import com.sharediary.diary.service.DiaryService;
@@ -28,6 +29,27 @@ public class DiaryController {
     public ResponseEntity<List<DiaryResponseDto>> getByDate(@RequestParam String date) {
         String userId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return ResponseEntity.ok(diaryService.getDiariesByDate(userId, date));
+    }
+
+    @GetMapping("/{diaryId}")
+    public ResponseEntity<DiaryResponseDto> getDiaryById(@PathVariable String diaryId) {
+        String userId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        Diary diary = diaryService.getDiaryById(diaryId);
+
+        // 권한 체크
+        if (!diaryService.hasEditPermission(diaryId, userId)) {
+            return ResponseEntity.status(403).build(); // 권한 없음
+        }
+
+        return ResponseEntity.ok(new DiaryResponseDto(
+                diary.getId(),
+                diary.getUserId(),
+                diary.getTitle(),
+                diary.getContent(),
+                diary.getDate(),
+                diary.getTaggedUserIds()
+        ));
     }
 
 }
