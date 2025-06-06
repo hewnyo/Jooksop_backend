@@ -20,8 +20,8 @@ public class Diary {
     private String id;
 
     private String userId;
+    private String title;
     private String content;
-
     private String date;
 
     @Field("taggedUserIds")

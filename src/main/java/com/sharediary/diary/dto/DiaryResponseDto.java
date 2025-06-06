@@ -4,8 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
 
 @Getter
@@ -14,6 +12,7 @@ import java.util.List;
 public class DiaryResponseDto {
     private String id;
     private String userId;
+    private String title;
     private String content;
     private String date;
     private List<String> taggedUserIds;

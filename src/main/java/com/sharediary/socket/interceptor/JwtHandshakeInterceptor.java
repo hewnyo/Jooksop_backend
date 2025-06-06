@@ -20,32 +20,38 @@ public class JwtHandshakeInterceptor implements HandshakeInterceptor {
                                    WebSocketHandler wsHandler, Map<String, Object> attributes) {
 
         URI uri = request.getURI();
-        String query = uri.getQuery(); // diaryId=abc&token=...
-        if (query == null) return false;
-
-        String token = null;
-        for (String pair : query.split("&")) {
-            String[] kv = pair.split("=");
-            if (kv.length == 2 && kv[0].equals("token")) {
-                token = kv[1];
-                break;
-            }
+        String query = uri.getQuery();
+        if (query == null || !query.contains("token=")) {
+            System.out.println("🔴 JwtHandshakeInterceptor - query 없음 또는 토큰 누락");
+            return false;
         }
 
-        if (token != null && jwtProvider.validateToken(token)) {
-            String userId = jwtProvider.getUserId(token);
-
-            // ✅ 여기에 로그 추가
-            System.out.println("🟢 JwtHandshakeInterceptor - userId from token: " + userId);
-
-            attributes.put("userId", userId);
-            return true;
+        String token = extractQueryParam(query, "token");
+        if (token == null || !jwtProvider.validateToken(token)) {
+            System.out.println("🔴 JwtHandshakeInterceptor - 유효하지 않은 토큰: " + token);
+            return false;
         }
 
-        return false;
+        String userId = jwtProvider.getUserId(token);
+        System.out.println("🟢 JwtHandshakeInterceptor - userId from token: " + userId);
+        attributes.put("userId", userId);
+
+        return true;
     }
 
     @Override
     public void afterHandshake(ServerHttpRequest request, ServerHttpResponse response,
-                               WebSocketHandler wsHandler, Exception exception) {}
+                               WebSocketHandler wsHandler, Exception exception) {
+        // 필요 시 로깅 가능
+    }
+
+    private String extractQueryParam(String query, String key) {
+        for (String pair : query.split("&")) {
+            String[] kv = pair.split("=");
+            if (kv.length == 2 && kv[0].equals(key)) {
+                return kv[1];
+            }
+        }
+        return null;
+    }
 }
