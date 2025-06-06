@@ -75,7 +75,7 @@ public class DiaryService implements DiaryEditDelegate {
      * 본문 수정 처리 (실시간 WebSocket)
      */
     @Override
-    public void applyEdit(String diaryId, String userId, String newContent) {
+    public void applyEdit(String diaryId, String userId, String newContent, String newTitle) {
         Diary diary = diaryRepository.findById(diaryId)
                 .orElseThrow(() -> new RuntimeException("일기를 찾을 수 없습니다."));
 
@@ -84,6 +84,7 @@ public class DiaryService implements DiaryEditDelegate {
         }
 
         diary.setContent(newContent);
+        diary.setTitle(newTitle);
         diary.setUpdatedAt(LocalDateTime.now());
         diaryRepository.save(diary);
     }

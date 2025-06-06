@@ -69,7 +69,7 @@ public class DiaryWebSocketHandler extends TextWebSocketHandler {
 
         switch (msg.getType()) {
             case "EDIT" -> {
-                delegate.applyEdit(diaryId, userId, msg.getContent());
+                delegate.applyEdit(diaryId, userId, msg.getContent(), msg.getTitle());
                 broadcast(diaryId, session, objectMapper.writeValueAsString(msg));
             }
             case "TAG_ADD" -> {
