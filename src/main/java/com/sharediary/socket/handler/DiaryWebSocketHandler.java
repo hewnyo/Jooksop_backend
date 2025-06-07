@@ -76,6 +76,11 @@ public class DiaryWebSocketHandler extends TextWebSocketHandler {
                 String taggedUserId = msg.getTaggedUserId();
                 if (delegate.canTagFriend(userId, taggedUserId)) {
                     delegate.addTag(diaryId, taggedUserId);
+
+                    // 🔥 자신에게도 보내기!
+                    session.sendMessage(new TextMessage(objectMapper.writeValueAsString(msg)));
+
+                    // 🔥 다른 유저들에게 broadcast
                     broadcast(diaryId, session, objectMapper.writeValueAsString(msg));
                 } else {
                     session.sendMessage(new TextMessage("{\"error\":\"친구가 아니라 태그할 수 없습니다.\"}"));

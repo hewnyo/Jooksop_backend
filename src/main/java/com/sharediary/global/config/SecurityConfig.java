@@ -37,6 +37,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/users/check-id", "/api/users/register").permitAll()
                         .requestMatchers("/api/friends/search").permitAll()  // 친구 검색 허용
                         .requestMatchers("/api/friends/**").authenticated()  // 친구 추가/삭제는 인증 필요
+                        .requestMatchers("/ws/**").permitAll() // WebSocket 연결 허용
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(new JwtAuthenticationFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class);
