@@ -11,6 +11,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -34,22 +35,28 @@ public class DiaryController {
     @GetMapping("/{diaryId}")
     public ResponseEntity<DiaryResponseDto> getDiaryById(@PathVariable String diaryId) {
         String userId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
         Diary diary = diaryService.getDiaryById(diaryId);
 
-        // 권한 체크
-        if (!diaryService.hasEditPermission(diaryId, userId)) {
-            return ResponseEntity.status(403).build(); // 권한 없음
+        // ✅ 현재 편집 권한 있음
+        if (diaryService.hasEditPermission(diaryId, userId)) {
+            return ResponseEntity.ok(new DiaryResponseDto(
+                    diary.getId(), diary.getUserId(), diary.getTitle(),
+                    diary.getContent(), diary.getDate(), diary.getTaggedUserIds()));
         }
 
-        return ResponseEntity.ok(new DiaryResponseDto(
-                diary.getId(),
-                diary.getUserId(),
-                diary.getTitle(),
-                diary.getContent(),
-                diary.getDate(),
-                diary.getTaggedUserIds()
-        ));
+        // ✅ 과거에 태그되어 있던 사용자면 snapshot 조회
+        if (diaryService.wasPreviouslyTagged(diaryId, userId)) {
+            var snapshotOpt = diaryService.getSnapshot(diaryId, userId);
+            if (snapshotOpt.isPresent()) {
+                var snap = snapshotOpt.get();
+                return ResponseEntity.ok(new DiaryResponseDto(
+                        diaryId, snap.getUserId(), snap.getTitle(),
+                        snap.getContent(), diary.getDate(), new ArrayList<>()));
+            }
+        }
+
+        return ResponseEntity.status(403).build();
     }
+
 
 }

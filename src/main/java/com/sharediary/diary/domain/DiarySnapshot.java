@@ -3,29 +3,23 @@ package com.sharediary.diary.domain;
 import jakarta.persistence.Id;
 import lombok.*;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.Field;
-
 
 import java.time.LocalDateTime;
-import java.util.List;
 
-@Document(collection = "diaries")
 @Getter
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Diary {
+@Document(collection = "diary_snapshots")
+public class DiarySnapshot {
+
     @Id
     private String id;
 
-    private String userId;
+    private String diaryId;
+    private String userId; // 태그가 삭제된 사용자
     private String title;
     private String content;
-    private String date;
-
-    @Field("taggedUserIds")
-    private List<String> taggedUserIds;
-
-    private LocalDateTime updatedAt;
+    private LocalDateTime createdAt;
 }

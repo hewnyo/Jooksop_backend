@@ -1,9 +1,11 @@
 package com.sharediary.diary.service;
 
 import com.sharediary.diary.domain.Diary;
+import com.sharediary.diary.domain.DiarySnapshot;
 import com.sharediary.diary.dto.DiaryRequestDto;
 import com.sharediary.diary.dto.DiaryResponseDto;
 import com.sharediary.diary.repository.DiaryRepository;
+import com.sharediary.diary.repository.DiarySnapshotRepository;
 import com.sharediary.friend.repository.FriendRepository;
 import com.sharediary.socket.delegate.DiaryEditDelegate;
 import com.sharediary.socket.handler.DiaryWebSocketHandler;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -23,6 +26,7 @@ public class DiaryService implements DiaryEditDelegate {
     private final DiaryRepository diaryRepository;
     private final DiaryWebSocketHandler diaryWebSocketHandler;
     private final FriendRepository friendRepository;
+    private final DiarySnapshotRepository diarySnapshotRepository;
 
 
     @PostConstruct
@@ -136,10 +140,30 @@ public class DiaryService implements DiaryEditDelegate {
                 .orElseThrow(() -> new RuntimeException("일기를 찾을 수 없습니다."));
 
         if (diary.getTaggedUserIds() != null && diary.getTaggedUserIds().contains(targetUserId)) {
+            // 🔥 snapshot 저장
+            DiarySnapshot snapshot = DiarySnapshot.builder()
+                    .diaryId(diaryId)
+                    .userId(targetUserId)
+                    .title(diary.getTitle())
+                    .content(diary.getContent())
+                    .createdAt(LocalDateTime.now())
+                    .build();
+            diarySnapshotRepository.save(snapshot);
+
+            // 태그 제거
             diary.getTaggedUserIds().remove(targetUserId);
             diaryRepository.save(diary);
+
             diaryWebSocketHandler.disconnectUserFromDiary(diaryId, targetUserId);
         }
+    }
+
+    public boolean wasPreviouslyTagged(String diaryId, String userId) {
+        return diarySnapshotRepository.findTopByDiaryIdAndUserIdOrderByCreatedAtDesc(diaryId, userId).isPresent();
+    }
+
+    public Optional<DiarySnapshot> getSnapshot(String diaryId, String userId) {
+        return diarySnapshotRepository.findTopByDiaryIdAndUserIdOrderByCreatedAtDesc(diaryId, userId);
     }
 
     public Diary getDiaryById(String diaryId) {
