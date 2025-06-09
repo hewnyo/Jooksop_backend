@@ -1,7 +1,12 @@
 package com.sharediary.diary.domain;
 
+<<<<<<< HEAD
 import jakarta.persistence.Id;
 import lombok.*;
+=======
+import lombok.*;
+import org.springframework.data.annotation.Id;
+>>>>>>> hyewon
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
