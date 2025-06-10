@@ -20,7 +20,11 @@ import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+<<<<<<< HEAD
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+=======
+/*@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+>>>>>>> hyewon
 @ContextConfiguration(classes = SharedDiaryApplication.class)
 
 public class JooksopApplicationTests {
@@ -44,6 +48,7 @@ public class JooksopApplicationTests {
 
 	@Test
 	void 회원가입_로그인_정상_작동_테스트() {
+<<<<<<< HEAD
 		// 유니크한 사용자 ID 생성
 		String userId = "testUser_" + System.currentTimeMillis();
 		String password = "secure123";
@@ -88,4 +93,12 @@ public class JooksopApplicationTests {
 
 
 }
+=======
+
+	}
+
+
+
+}*/
+>>>>>>> hyewon
 
