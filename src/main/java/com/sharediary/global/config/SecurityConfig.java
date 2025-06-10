@@ -56,11 +56,14 @@ public class SecurityConfig {
         return config.getAuthenticationManager();
     }
 
-    // CORS 설정: 프론트엔드 주소 허용
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:5173", "http://localhost:5174")); // 프론트 주소
+        config.setAllowedOrigins(List.of(
+                "http://localhost:5173",
+                "http://localhost:5174",
+                "https://jooksop-react-ebtg.vercel.app" // ✅ Vercel 배포 주소 추가
+        ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setExposedHeaders(List.of("Authorization")); // 토큰 응답 헤더 노출
@@ -70,4 +73,5 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", config);
         return source;
     }
+
 }
