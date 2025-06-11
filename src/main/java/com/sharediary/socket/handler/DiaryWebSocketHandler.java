@@ -28,12 +28,9 @@ public class DiaryWebSocketHandler extends TextWebSocketHandler {
     private final JwtProvider jwtProvider;
     private DiaryEditDelegate delegate;
 
-
     public void setDelegate(DiaryEditDelegate delegate) {
         this.delegate = delegate;
     }
-
-
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) {
@@ -65,23 +62,18 @@ public class DiaryWebSocketHandler extends TextWebSocketHandler {
         String diaryId = msg.getDiaryId();
         String userId = (String) session.getAttributes().get("userId");
 
-        msg.setUserId(userId); // 보안상 신뢰 불가이므로 서버에서 덮어씀
+        msg.setUserId(userId); // 보안: 서버에서 덮어씀
 
         switch (msg.getType()) {
             case "EDIT" -> {
                 delegate.applyEdit(diaryId, userId, msg.getContent(), msg.getTitle());
-                broadcast(diaryId, session, objectMapper.writeValueAsString(msg));
+                broadcast(diaryId, objectMapper.writeValueAsString(msg)); // 보낸 사람 포함 전체 broadcast
             }
             case "TAG_ADD" -> {
                 String taggedUserId = msg.getTaggedUserId();
                 if (delegate.canTagFriend(userId, taggedUserId)) {
                     delegate.addTag(diaryId, taggedUserId);
-
-                    // 🔥 자신에게도 보내기!
-                    session.sendMessage(new TextMessage(objectMapper.writeValueAsString(msg)));
-
-                    // 🔥 다른 유저들에게 broadcast
-                    broadcast(diaryId, session, objectMapper.writeValueAsString(msg));
+                    broadcast(diaryId, objectMapper.writeValueAsString(msg)); // 모든 사람에게 전송
                 } else {
                     session.sendMessage(new TextMessage("{\"error\":\"친구가 아니라 태그할 수 없습니다.\"}"));
                 }
@@ -90,7 +82,7 @@ public class DiaryWebSocketHandler extends TextWebSocketHandler {
                 String untaggedUserId = msg.getTaggedUserId();
                 delegate.removeTag(diaryId, untaggedUserId);
                 disconnectUserFromDiary(diaryId, untaggedUserId);
-                broadcast(diaryId, session, objectMapper.writeValueAsString(msg));
+                broadcast(diaryId, objectMapper.writeValueAsString(msg));
             }
             default -> {
                 log.warn("⚠️ 알 수 없는 메시지 타입: {}", msg.getType());
@@ -99,12 +91,10 @@ public class DiaryWebSocketHandler extends TextWebSocketHandler {
         }
     }
 
-
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
         sessionMap.values().forEach(list -> list.remove(session));
     }
-
 
     public void disconnectUserFromDiary(String diaryId, String userId) {
         List<WebSocketSession> sessions = sessionMap.getOrDefault(diaryId, List.of());
@@ -120,9 +110,9 @@ public class DiaryWebSocketHandler extends TextWebSocketHandler {
                 });
     }
 
-    private void broadcast(String diaryId, WebSocketSession excludeSession, String payload) {
+    private void broadcast(String diaryId, String payload) {
         for (WebSocketSession s : sessionMap.getOrDefault(diaryId, List.of())) {
-            if (s.isOpen() && !s.getId().equals(excludeSession.getId())) {
+            if (s.isOpen()) {
                 try {
                     s.sendMessage(new TextMessage(payload));
                 } catch (Exception e) {
@@ -150,5 +140,4 @@ public class DiaryWebSocketHandler extends TextWebSocketHandler {
         }
         return null;
     }
-
 }
