@@ -59,19 +59,20 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of(
-                "http://localhost:5173",
-                "http://localhost:5174",
-                "https://jooksop-react-ebtg.vercel.app" // ✅ Vercel 배포 주소 추가
+        config.setAllowedOriginPatterns(List.of(
+                "http://localhost:*",
+                "https://*.vercel.app",
+                "https://withlog.vercel.app" // 명시적으로 포함!
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
-        config.setExposedHeaders(List.of("Authorization")); // 토큰 응답 헤더 노출
-        config.setAllowCredentials(true);
+        config.setExposedHeaders(List.of("Authorization")); // 응답에 토큰 헤더 노출
+        config.setAllowCredentials(true); // 쿠키/인증정보 허용
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return source;
     }
+
 
 }
