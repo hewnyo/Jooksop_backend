@@ -111,8 +111,10 @@ public class DiaryService implements DiaryEditDelegate {
      */
     @Override
     public boolean canTagFriend(String userId, String taggedUserId) {
-        return friendRepository.existsByRequesterUserIdAndTargetUserId(userId, taggedUserId);
+        return friendRepository.existsByRequesterUserIdAndTargetUserId(userId, taggedUserId)
+                || friendRepository.existsByRequesterUserIdAndTargetUserId(taggedUserId, userId);
     }
+
 
     /**
      * 태그 추가
