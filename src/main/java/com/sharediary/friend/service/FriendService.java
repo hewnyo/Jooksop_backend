@@ -9,7 +9,6 @@ import com.sharediary.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -21,22 +20,34 @@ public class FriendService {
     private final FriendRepository friendRepository;
     private final UserRepository userRepository;
 
+    // ✅ 친구 추가 (양방향)
     public void addFriend(String requesterUserId, String targetUserId) {
         if (!userRepository.existsByUserId(targetUserId)) {
             throw new IllegalArgumentException("존재하지 않는 사용자입니다.");
         }
 
+        // 이미 친구인지 확인
         if (friendRepository.existsByRequesterUserIdAndTargetUserId(requesterUserId, targetUserId)) {
-            throw new IllegalArgumentException(("이미 친구입니다."));
+            throw new IllegalArgumentException("이미 친구입니다.");
         }
 
+        // A → B 저장
         friendRepository.save(Friend.builder()
                 .requesterUserId(requesterUserId)
                 .targetUserId(targetUserId)
                 .build());
+
+        // B → A 저장 (역방향도 추가)
+        if (!friendRepository.existsByRequesterUserIdAndTargetUserId(targetUserId, requesterUserId)) {
+            friendRepository.save(Friend.builder()
+                    .requesterUserId(targetUserId)
+                    .targetUserId(requesterUserId)
+                    .build());
+        }
     }
 
-    public List<FriendResponseDto> getFriends(String requesterUserId){
+    // ✅ 친구 목록 조회
+    public List<FriendResponseDto> getFriends(String requesterUserId) {
         List<Friend> friends = friendRepository.findByRequesterUserId(requesterUserId);
         return friends.stream()
                 .map(f -> userRepository.findByUserId(f.getTargetUserId())
@@ -46,11 +57,13 @@ public class FriendService {
                 .collect(Collectors.toList());
     }
 
-
-    public void removeFriend(String requesterUserId, String targetUserId){
+    // ✅ 친구 삭제 (양방향)
+    public void removeFriend(String requesterUserId, String targetUserId) {
         friendRepository.deleteByRequesterUserIdAndTargetUserId(requesterUserId, targetUserId);
+        friendRepository.deleteByRequesterUserIdAndTargetUserId(targetUserId, requesterUserId);
     }
 
+    // ✅ ID 정확히 일치하는 유저 검색
     public List<UserResponseDto> searchUsersByExactId(String userId) {
         Optional<User> userOpt = userRepository.findByUserId(userId);
         if (userOpt.isEmpty()) {
@@ -65,5 +78,4 @@ public class FriendService {
                 user.getProfileImageUrl()
         ));
     }
-
 }
